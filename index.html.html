@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>A Little Something For You ✨</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-cream: #fbf7f4;
+      --bg-blush: #f7eae8;
+      --bg-dark: #14192d;
+      --text-dark: #2c2427;
+      --text-muted: #786a6e;
+      --accent-rose: #d95d78;
+      --accent-rose-dark: #be4661;
+      --accent-gold: #f5b942;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      overflow: hidden;
+    }
+
+    /* Mobile Card Container */
+    .card-container {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      max-height: 932px;
+      background: radial-gradient(circle at 50% 30%, #fffdfc 0%, var(--bg-cream) 65%, var(--bg-blush) 100%);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+    }
+
+    /* Floating Music Toggle Button */
+    .music-toggle {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(6px);
+      border: 1px solid #f0dce0;
+      color: var(--accent-rose);
+      padding: 7px 13px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: all 0.25s ease;
+    }
+
+    .music-toggle.playing {
+      background: var(--accent-rose);
+      color: #fff;
+      border-color: var(--accent-rose);
+      animation: pulseMusic 2s infinite;
+    }
+
+    @keyframes pulseMusic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(217, 93, 120, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(217, 93, 120, 0); }
+    }
+
+    /* Screen Transitions */
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(18px) scale(0.98);
+      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 1;
+    }
+
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+    }
+
+    /* Typography */
+    .kicker {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--accent-rose);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: 2.55rem;
+      line-height: 1.08;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+
+    h1 span.italic-rose {
+      font-style: italic;
+      color: var(--accent-rose);
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 280px;
+      margin-bottom: 28px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #e36883 0%, var(--accent-rose) 100%);
+      color: #fff;
+      border: none;
+      padding: 13px 28px;
+      border-radius: 50px;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(217, 93, 120, 0.32);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(217, 93, 120, 0.42);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #f7c654 0%, #e6a82e 100%);
+      color: #2c2008;
+      font-weight: 600;
+      box-shadow: 0 0 28px rgba(245, 185, 66, 0.45);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid #dec9ce;
+      color: var(--text-muted);
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent-rose);
+      color: var(--accent-rose);
+    }
+
+    /* Floating Sparkles */
+    .sparkle {
+      position: absolute;
+      color: var(--accent-rose);
+      opacity: 0.45;
+      font-size: 0.9rem;
+      animation: floatSparkle 3.5s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes floatSparkle {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.35; }
+      50% { transform: translateY(-8px) scale(1.2); opacity: 0.85; }
+    }
+
+    /* ==================== SCREEN 1: ENVELOPE ==================== */
+    .envelope-wrapper {
+      position: relative;
+      width: 240px;
+      height: 165px;
+      margin: 20px 0 36px;
+      cursor: pointer;
+    }
+
+    .envelope-back {
+      position: absolute;
+      inset: 0;
+      background: #e6cbb3;
+      border-radius: 10px;
+      box-shadow: 0 15px 35px rgba(84, 58, 43, 0.16);
+    }
+
+    .letter-card {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 12px;
+      height: 145px;
+      background: #fffdfb;
+      border-radius: 8px;
+      padding: 16px 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .letter-card small {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .letter-card .recipient-name {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.7rem;
+      color: var(--accent-rose);
+      margin-top: 2px;
+    }
+
+    .envelope-pocket {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      background: linear-gradient(135deg, #f3dec9 50%, transparent 50%),
+                  linear-gradient(225deg, #edd3b9 50%, transparent 50%);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .envelope-pocket::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 95px;
+      background: #f6e4d2;
+      clip-path: polygon(0 100%, 50% 15%, 100% 100%);
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 95px;
+      background: #ebd0b5;
+      clip-path: polygon(0 0, 50% 95%, 100% 0);
+      transform-origin: top;
+      transition: transform 0.6s ease;
+      z-index: 4;
+    }
+
+    .wax-seal {
+      position: absolute;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 38px;
+      height: 38px;
+      background: radial-gradient(circle at 30% 30%, #e96f89, #b83b56);
+      border-radius: 50%;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 10px rgba(184, 59, 86, 0.4);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .envelope-wrapper.opened .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+    .envelope-wrapper.opened .wax-seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.5);
+    }
+    .envelope-wrapper.opened .letter-card {
+      transform: translateY(-68px);
+    }
+
+    /* ==================== SCREEN 2: DARK ROOM ==================== */
+    #screen-dark {
+      background: radial-gradient(circle at 50% 45%, #232b4d 0%, #12172b 75%, #0b0e1c 100%);
+      color: #fff;
+    }
+
+    #screen-dark h1 {
+      color: #ffffff;
+    }
+
+    #screen-dark .kicker {
+      color: #f5c469;
+    }
+
+    #screen-dark .subtitle {
+      color: #a9b3d1;
+    }
+
+    .stars-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(1.5px 1.5px at 20% 25%, #fff, transparent),
+        radial-gradient(2px 2px at 75% 18%, #ffe7a3, transparent),
+        radial-gradient(1.5px 1.5px at 82% 65%, #fff, transparent),
+        radial-gradient(2px 2px at 18% 72%, #ffe7a3, transparent),
+        radial-gradient(1px 1px at 45% 15%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 60% 82%, #fff, transparent);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* ==================== SCREEN 3: HAPPY BIRTHDAY ==================== */
+    .bunting {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      padding: 0 10px;
+    }
+
+    .flag {
+      width: 0;
+      height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 26px solid var(--accent-rose);
+      opacity: 0.75;
+    }
+    .flag:nth-child(2n) { border-top-color: #f5b942; }
+    .flag:nth-child(3n) { border-top-color: #84b6f4; }
+
+    .date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #f0dce0;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      color: var(--text-dark);
+      font-weight: 500;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .celebration-illustration {
+      font-size: 5rem;
+      margin: 10px 0 22px;
+      filter: drop-shadow(0 12px 18px rgba(217, 93, 120, 0.18));
+      animation: gentleBounce 2.8s infinite ease-in-out;
+    }
+
+    @keyframes gentleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* ==================== SCREEN 4: CUT THE CAKE ==================== */
+    .cake-stage {
+      position: relative;
+      width: 240px;
+      height: 220px;
+      margin: 15px auto 25px;
+      cursor: ns-resize;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .cake-half {
+      position: absolute;
+      inset: 0;
+      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cake-left {
+      clip-path: inset(0 50% 0 0);
+    }
+
+    .cake-right {
+      clip-path: inset(0 0 0 50%);
+    }
+
+    .cake-stage.sliced .cake-left {
+      transform: translateX(-16px) rotate(-2deg);
+    }
+
+    .cake-stage.sliced .cake-right {
+      transform: translateX(16px) rotate(2deg);
+    }
+
+    .swipe-line {
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      left: 50%;
+      width: 2px;
+      background: repeating-linear-gradient(to bottom, var(--accent-rose) 0, var(--accent-rose) 6px, transparent 6px, transparent 12px);
+      transform: translateX(-50%);
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+
+    .cake-stage.sliced .swipe-line {
+      opacity: 0;
+    }
+
+    /* ==================== SCREEN 5: MAKE A WISH ==================== */
+    .wish-illustration {
+      font-size: 4.5rem;
+      margin-bottom: 18px;
+      transition: transform 0.6s ease;
+    }
+
+    /* ==================== SCREEN 6: HEARTFELT LETTER ==================== */
+    #screen-letter {
+      justify-content: flex-start;
+      padding-top: 56px;
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    .letter-body {
+      font-size: 0.84rem;
+      line-height: 1.68;
+      color: #4a3f42;
+      margin-top: 12px;
+      overflow-y: auto;
+      max-height: 60vh;
+      padding-right: 4px;
+    }
+
+    .letter-body p {
+      margin-bottom: 14px;
+    }
+
+    .drop-cap {
+      float: left;
+      font-family: var(--font-serif);
+      font-size: 2.7rem;
+      line-height: 0.85;
+      padding-right: 8px;
+      padding-top: 4px;
+      color: var(--accent-rose);
+      font-weight: 600;
+    }
+
+    .letter-footer {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: auto;
+      padding-top: 12px;
+    }
+
+    /* ==================== SCREEN 7: FINAL SCREEN ==================== */
+    .signature {
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: var(--accent-rose);
+      font-size: 1rem;
+      margin-bottom: 28px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card-container">
+  <!-- Background Audio: Put 'bin-tere-kya-jeena.mp3' in the same folder as this HTML file -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="bin-tere-kya-jeena.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Music Control Pill -->
+  <button class="music-toggle" id="music-btn" onclick="toggleMusic()">
+    <span id="music-icon">🎵</span>
+    <span id="music-label">Bin Tere Kya Jeena</span>
+  </button>
+
+  <!-- Decorative Floating Sparkles -->
+  <span class="sparkle" style="top: 14%; left: 16%;">✦</span>
+  <span class="sparkle" style="top: 22%; right: 18%; animation-delay: 1s;">✦</span>
+  <span class="sparkle" style="bottom: 24%; left: 14%; animation-delay: 1.8s;">✦</span>
+  <span class="sparkle" style="bottom: 18%; right: 20%; animation-delay: 0.6s;">✦</span>
+
+  <!-- ==================== SCREEN 1: ENVELOPE COVER ==================== -->
+  <section class="screen active" id="screen-1">
+    <p class="kicker">a little something</p>
+    <h1>There's<br>something <span class="italic-rose">for you</span></h1>
+    <p class="subtitle">A tiny birthday surprise, made just for you.</p>
+
+    <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+      <div class="envelope-back"></div>
+      <div class="letter-card">
+        <small>especially for</small>
+        <div class="recipient-name">Aanya</div>
+      </div>
+      <div class="envelope-pocket"></div>
+      <div class="envelope-flap"></div>
+      <div class="wax-seal">♥</div>
+    </div>
+
+    <button class="btn-primary" onclick="openEnvelope()">Open your surprise ›</button>
+  </section>
+
+  <!-- ==================== SCREEN 2: DARK ROOM ==================== -->
+  <section class="screen" id="screen-dark">
+    <div class="stars-bg"></div>
+    <p class="kicker">Shhh...</p>
+    <h1>The room is<br>waiting for you.</h1>
+    <p class="subtitle">Someone left the lights off on purpose.</p>
+    <button class="btn-primary btn-gold" onclick="turnOnLights()">Turn on the lights ✨</button>
+  </section>
+
+  <!-- ==================== SCREEN 3: CELEBRATION REVEAL ==================== -->
+  <section class="screen" id="screen-3">
+    <div class="bunting">
+      <div class="flag"></div><div class="flag"></div><div class="flag"></div>
+      <div class="flag"></div><div class="flag"></div><div class="flag"></div>
+      <div class="flag"></div><div class="flag"></div>
+    </div>
+
+    <p class="kicker">and now it's official</p>
+    <h1>Happy Birthday,<br><span class="italic-rose">Aanya</span></h1>
+    
+    <div class="date-pill">🎂 28 September</div>
+
+    <div class="celebration-illustration">🧸🎈🎁</div>
+
+    <button class="btn-primary" onclick="goToScreen('screen-4')">There's more ›</button>
+  </section>
+
+  <!-- ==================== SCREEN 4: CUT THE CAKE ==================== -->
+  <section class="screen" id="screen-4">
+    <p class="kicker" id="cake-kicker">Cake time</p>
+    <h1 id="cake-title">Make the first cut ✨</h1>
+    <p class="subtitle" id="cake-subtitle">Swipe down across the cake, top to bottom.</p>
+
+    <div class="cake-stage" id="cake-stage">
+      <div class="cake-half cake-left">
+        <svg viewBox="0 0 240 220" width="240" height="220">
+          <ellipse cx="120" cy="198" rx="105" ry="12" fill="#e5dcdf"/>
+          <rect x="40" y="135" width="160" height="58" rx="8" fill="#f9c5d1"/>
+          <path d="M40 142 Q55 158 70 142 Q85 158 100 142 Q115 158 130 142 Q145 158 160 142 Q175 158 190 142 L200 142 L200 135 L40 135 Z" fill="#fff5f7"/>
+          <rect x="68" y="82" width="104" height="53" rx="8" fill="#ffe5ec"/>
+          <path d="M68 88 Q81 102 94 88 Q107 102 120 88 Q133 102 146 88 Q159 102 172 88 L172 82 L68 82 Z" fill="#d95d78"/>
+          <rect x="95" y="54" width="6" height="28" rx="3" fill="#f5b942"/>
+          <rect x="117" y="50" width="6" height="32" rx="3" fill="#84b6f4"/>
+          <rect x="139" y="54" width="6" height="28" rx="3" fill="#e36883"/>
+          <circle cx="98" cy="46" r="5" fill="#ff9f1c"/>
+          <circle cx="120" cy="42" r="5" fill="#ff9f1c"/>
+          <circle cx="142" cy="46" r="5" fill="#ff9f1c"/>
+        </svg>
+      </div>
+      <div class="cake-half cake-right">
+        <svg viewBox="0 0 240 220" width="240" height="220">
+          <ellipse cx="120" cy="198" rx="105" ry="12" fill="#e5dcdf"/>
+          <rect x="40" y="135" width="160" height="58" rx="8" fill="#f9c5d1"/>
+          <path d="M40 142 Q55 158 70 142 Q85 158 100 142 Q115 158 130 142 Q145 158 160 142 Q175 158 190 142 L200 142 L200 135 L40 135 Z" fill="#fff5f7"/>
+          <rect x="68" y="82" width="104" height="53" rx="8" fill="#ffe5ec"/>
+          <path d="M68 88 Q81 102 94 88 Q107 102 120 88 Q133 102 146 88 Q159 102 172 88 L172 82 L68 82 Z" fill="#d95d78"/>
+          <rect x="95" y="54" width="6" height="28" rx="3" fill="#f5b942"/>
+          <rect x="117" y="50" width="6" height="32" rx="3" fill="#84b6f4"/>
+          <rect x="139" y="54" width="6" height="28" rx="3" fill="#e36883"/>
+          <circle cx="98" cy="46" r="5" fill="#ff9f1c"/>
+          <circle cx="120" cy="42" r="5" fill="#ff9f1c"/>
+          <circle cx="142" cy="46" r="5" fill="#ff9f1c"/>
+        </svg>
+      </div>
+      <div class="swipe-line"></div>
+    </div>
+
+    <button class="btn-primary" id="cake-next-btn" style="display: none;" onclick="goToScreen('screen-5')">Make a wish ›</button>
+  </section>
+
+  <!-- ==================== SCREEN 5: MAKE A WISH ==================== -->
+  <section class="screen" id="screen-5">
+    <div class="wish-illustration" id="wish-emoji">🧸🎂</div>
+    <h1 id="wish-title">Close your eyes...</h1>
+    <p class="subtitle" id="wish-subtitle">Make a little wish for the year ahead.</p>
+    <button class="btn-primary" id="wish-btn" onclick="makeWish()">I made my wish ›</button>
+  </section>
+
+  <!-- ==================== SCREEN 6: HEARTFELT LETTER ==================== -->
+  <section class="screen" id="screen-letter">
+    <p class="kicker">a note from the heart</p>
+    <h1>For you, <span class="italic-rose">Aanya</span></h1>
+
+    <div class="letter-body">
+      <p><span class="drop-cap">H</span>appy birthday, you wonderful human.</p>
+      <p>I wanted to make you something that felt a little like you — warm, a bit silly, and full of tiny surprises. So here it is: a small corner of the internet that exists only because you do.</p>
+      <p>Thank you for every late-night talk, every ridiculous inside joke, every time you showed up without being asked. You make ordinary days feel like something worth remembering.</p>
+      <p>This year, I hope you get the slow mornings, the loud laughs, the good news you've been waiting for, and at least one perfect slice of cake.</p>
+      <p>Whatever you wished for back there — I hope it finds you soon. And if it takes a little while, I'll be right here, cheering the loudest.</p>
+      <p><strong>Happy birthday. Today is all yours.</strong></p>
+    </div>
+
+    <div class="letter-footer">
+      <button class="btn-primary" onclick="goToScreen('screen-7')">One last thing ›</button>
+    </div>
+  </section>
+
+  <!-- ==================== SCREEN 7: FINAL SCREEN ==================== -->
+  <section class="screen" id="screen-7">
+    <div class="celebration-illustration">🧸🎈</div>
+    <h1>Happy Birthday,<br><span class="italic-rose">Aanya!</span> 🎂</h1>
+    <p class="subtitle" style="margin-bottom: 10px;">May this year bring you countless little reasons to smile.</p>
+    <p class="signature">— with love, Someone Special</p>
+
+    <button class="btn-outline" onclick="resetCard()">Replay the surprise ↻</button>
+  </section>
+</div>
+
+<script>
+  const bgMusic = document.getElementById('bg-music');
+  const musicBtn = document.getElementById('music-btn');
+  const musicIcon = document.getElementById('music-icon');
+  let isPlaying = false;
+
+  // Start music helper
+  function startMusic() {
+    if (!isPlaying) {
+      bgMusic.volume = 0.7;
+      bgMusic.play().then(() => {
+        isPlaying = true;
+        musicBtn.classList.add('playing');
+        musicIcon.textContent = '🎶';
+      }).catch(err => {
+        console.log('Audio playback waiting for valid mp3 file or interaction:', err);
+      });
+    }
+  }
+
+  // Toggle play/pause from top-right pill
+  function toggleMusic() {
+    if (isPlaying) {
+      bgMusic.pause();
+      isPlaying = false;
+      musicBtn.classList.remove('playing');
+      musicIcon.textContent = '🔇';
+    } else {
+      startMusic();
+    }
+  }
+
+  // Navigation helper
+  function goToScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  // 1. Envelope Open Interaction + Start Song
+  let envelopeOpened = false;
+  function openEnvelope() {
+    startMusic(); // Starts "Bin Tere Kya Jeena" immediately on tap!
+    if (envelopeOpened) return;
+    envelopeOpened = true;
+    document.getElementById('envelope').classList.add('opened');
+    setTimeout(() => {
+      goToScreen('screen-dark');
+    }, 1150);
+  }
+
+  // 2. Turn on the Lights + Confetti Burst
+  function turnOnLights() {
+    goToScreen('screen-3');
+    triggerConfetti();
+  }
+
+  function triggerConfetti() {
+    confetti({
+      particleCount: 75,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#d95d78', '#f5b942', '#84b6f4', '#f9c5d1']
+    });
+  }
+
+  // 4. Swipe-to-Cut Cake Gesture
+  const cakeStage = document.getElementById('cake-stage');
+  let startY = null;
+  let cakeCut = false;
+
+  function startSwipe(y) {
+    if (!cakeCut) startY = y;
+  }
+
+  function moveSwipe(y) {
+    if (startY !== null && !cakeCut && (y - startY) > 45) {
+      cakeCut = true;
+      cakeStage.classList.add('sliced');
+      document.getElementById('cake-title').innerHTML = 'You did it! 🎉';
+      document.getElementById('cake-subtitle').innerText = 'The first slice is always the sweetest one.';
+      document.getElementById('cake-next-btn').style.display = 'inline-flex';
+      triggerConfetti();
+    }
+  }
+
+  cakeStage.addEventListener('mousedown', e => startSwipe(e.clientY));
+  window.addEventListener('mousemove', e => moveSwipe(e.clientY));
+  window.addEventListener('mouseup', () => { startY = null; });
+
+  cakeStage.addEventListener('touchstart', e => startSwipe(e.touches[0].clientY));
+  cakeStage.addEventListener('touchmove', e => moveSwipe(e.touches[0].clientY));
+  cakeStage.addEventListener('touchend', () => { startY = null; });
+  cakeStage.addEventListener('click', () => {
+    if (!cakeCut) moveSwipe((startY || 0) + 60);
+  });
+
+  // 5. Make a Wish -> Goes straight to Heartfelt Letter (skips Polaroids)
+  function makeWish() {
+    document.getElementById('wish-title').innerHTML = 'Your wish is on its way ✨';
+    document.getElementById('wish-subtitle').innerText = 'Somewhere, a tiny star just said yes.';
+    const btn = document.getElementById('wish-btn');
+    btn.style.opacity = '0.5';
+    btn.style.pointerEvents = 'none';
+    triggerConfetti();
+
+    setTimeout(() => {
+      goToScreen('screen-letter');
+    }, 1800);
+  }
+
+  // 7. Replay / Reset Everything
+  function resetCard() {
+    envelopeOpened = false;
+    cakeCut = false;
+    document.getElementById('envelope').classList.remove('opened');
+    cakeStage.classList.remove('sliced');
+    document.getElementById('cake-title').innerHTML = 'Make the first cut ✨';
+    document.getElementById('cake-subtitle').innerText = 'Swipe down across the cake, top to bottom.';
+    document.getElementById('cake-next-btn').style.display = 'none';
+
+    document.getElementById('wish-title').innerHTML = 'Close your eyes...';
+    document.getElementById('wish-subtitle').innerText = 'Make a little wish for the year ahead.';
+    const btn = document.getElementById('wish-btn');
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+
+    goToScreen('screen-1');
+  }
+</script>
+</body>
+</html>
